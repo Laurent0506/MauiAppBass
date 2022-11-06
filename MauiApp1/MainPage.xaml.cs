@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Un4seen.Bass;
 
 namespace MauiApp1;
@@ -14,35 +15,32 @@ public partial class MainPage : ContentPage
 
     private async void OnBassClicked(object sender, EventArgs e)
     {
-        int bassVersion;
+        int bassVersion = 0;
         nint libHandle;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            await DisplayAlert("Info", "On Windows", "OK");
-        else
+        Trace.WriteLine($"RuntimeInformation.IsOSPlatform(OSPlatform.Windows) {RuntimeInformation.IsOSPlatform(OSPlatform.Windows)}");
+        Trace.WriteLine($"System.Environment.Is64BitOperatingSystem : {System.Environment.Is64BitOperatingSystem}");
+        Trace.WriteLine($"System.Environment.Is64BitProcess : {System.Environment.Is64BitProcess}");
+        Trace.WriteLine($"NativeLibrary.TryLoad(\"Bass.Net.dll\", out libHandle) : {NativeLibrary.TryLoad("Bass.Net.dll", out libHandle)}");
+        Trace.WriteLine($"NativeLibrary.TryLoad(\"bass.dll\", out libHandle) : {NativeLibrary.TryLoad("bass.dll", out libHandle)}");
+        Trace.WriteLine($"NativeLibrary.TryLoad(\"bass_fx.dll\", out libHandle) : {NativeLibrary.TryLoad("bass_fx.dll", out libHandle)}");
+
+        try
         {
-            await DisplayAlert("Info", "not Windows platform ... test stoped", "OK");
+            bassVersion = Bass.BASS_GetVersion();
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Exception message Bass.BASS_GetVersion() : {ex.Message}");
+            Trace.WriteLine($"Exception type Bass.BASS_GetVersion() : {ex.GetType}");
+            Trace.WriteLine($"Exception InnerException Bass.BASS_GetVersion() : {ex.InnerException}");
+            Trace.WriteLine($"Exception StackTrace Bass.BASS_GetVersion() : {ex.StackTrace}");
+            await DisplayAlert("Info", $"Exception Bass.BASS_GetVersion() : {ex.Message}", "OK");
             return;
         }
-            
-        if (NativeLibrary.TryLoad("Bass.Net.dll", out libHandle))
-            await DisplayAlert("Info", "Bass.Net.dll loaded", "OK"); 
-        else
-            await DisplayAlert("Info", "Bass.Net.dll not loaded", "OK");
 
-        if (NativeLibrary.TryLoad("bass.dll", out libHandle))
-            await DisplayAlert("Info", "bass.dll loaded", "OK");
-        else
-            await DisplayAlert("Info", "bass.dll not loaded", "OK");
-
-        if (NativeLibrary.TryLoad("bass_fx.dll", out libHandle))
-            await DisplayAlert("Info", "bass_fx.dll loaded", "OK");
-        else
-            await DisplayAlert("Info", "bass_fx.dll not loaded", "OK");
-
-        bassVersion = Bass.BASS_GetVersion();
-
-        await DisplayAlert("Info", bassVersion.ToString(), "OK");  
+        Trace.WriteLine($"Bass.BASS_GetVersion() : {bassVersion}");
+        await DisplayAlert("Info", "Bass.BASS_GetVersion() : " + bassVersion.ToString(), "OK");
     }
 
 }
